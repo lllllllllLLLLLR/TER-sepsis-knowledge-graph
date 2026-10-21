@@ -1,0 +1,321 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 900px;
+                 background-color: #1a1a1a;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"font": {"color": "white"}, "group": "Treatment", "id": "introduction SIC criteria and", "label": "introduction SIC criteria and", "shape": "ellipse", "size": 10, "title": "\u3010\u5b8c\u6574\u8bc1\u636e\u3011\nThe introduction of the SIC criteria and scoring system for sepsis-induced coagulopathy (SIC) in 2017 allowed for early detection of DIC, which is a major driver of sepsis-associated mortality."}, {"font": {"color": "white"}, "group": "Treatment", "id": "SIC criteria and scoring", "label": "SIC criteria and scoring", "shape": "box", "size": 10, "title": "\u3010\u5b8c\u6574\u7ed3\u8bba\u3011\nThe SIC criteria and scoring system are a valuable tool for early detection of sepsis-associated DIC."}, {"font": {"color": "white"}, "group": "Treatment", "id": "Neonatal sepsis frequent cause", "label": "Neonatal sepsis frequent cause", "shape": "ellipse", "size": 10, "title": "\u3010\u5b8c\u6574\u8bc1\u636e\u3011\nNeonatal sepsis is a frequent cause of neonatal morbidity and mortality."}, {"font": {"color": "white"}, "group": "Treatment", "id": "Early neonatal sepsis classi\ufb01ed", "label": "Early neonatal sepsis classi\ufb01ed", "shape": "box", "size": 10, "title": "\u3010\u5b8c\u6574\u7ed3\u8bba\u3011\nEarly neonatal sepsis is classi\ufb01ed according to the time of onset as early or late."}, {"font": {"color": "white"}, "group": "Treatment", "id": "incidence sepsis or septic", "label": "incidence sepsis or septic", "shape": "ellipse", "size": 10, "title": "\u3010\u5b8c\u6574\u8bc1\u636e\u3011\nThe incidence of sepsis or septic shock in patients with an infected pleural space is not well reported in the literature."}, {"font": {"color": "white"}, "group": "Treatment", "id": "incidence parapneumonic effusion significant", "label": "incidence parapneumonic effusion significant", "shape": "box", "size": 10, "title": "\u3010\u5b8c\u6574\u7ed3\u8bba\u3011\nThe incidence of parapneumonic effusion is a significant component of prognostic models to predict mortality from pneumonia."}, {"font": {"color": "white"}, "group": "Treatment", "id": "high mortality rate associated", "label": "high mortality rate associated", "shape": "ellipse", "size": 10, "title": "\u3010\u5b8c\u6574\u8bc1\u636e\u3011\nThe high mortality rate associated with delayed treatment and the lack of speci\ufb01c diagnostic and therapeutic guidance, clinicians empirically administer broad-spectrum an- tibiotics as early as possible."}, {"font": {"color": "white"}, "group": "Treatment", "id": "Empirical antibiotic administration sepsis", "label": "Empirical antibiotic administration sepsis", "shape": "box", "size": 10, "title": "\u3010\u5b8c\u6574\u7ed3\u8bba\u3011\nEmpirical antibiotic administration in sepsis is not as e\ufb03cacious as therapeutics targeted A. Claxton"}, {"font": {"color": "white"}, "group": "Treatment", "id": "pathophysiology sepsis has yet", "label": "pathophysiology sepsis has yet", "shape": "ellipse", "size": 10, "title": "\u3010\u5b8c\u6574\u8bc1\u636e\u3011\nThe pathophysiology of sepsis has yet to be comprehensively understood, but it is evident that this syndrome involves a complex interplay between the pathogen and host immune system."}, {"font": {"color": "white"}, "group": "Treatment", "id": "complex pathophysiology sepsis suggests", "label": "complex pathophysiology sepsis suggests", "shape": "box", "size": 10, "title": "\u3010\u5b8c\u6574\u7ed3\u8bba\u3011\nThe complex pathophysiology of sepsis suggests that a single biomarker cannot identify, stratify, and describe patients affected by septic shock."}, {"font": {"color": "white"}, "group": "Treatment", "id": "raw data observation or", "label": "raw data observation or", "shape": "ellipse", "size": 10, "title": "\u3010\u5b8c\u6574\u8bc1\u636e\u3011\nThe raw data, observation, or statistical finding (The \u0027Because...\u0027)"}, {"font": {"color": "white"}, "group": "Treatment", "id": "inference or proposal derived", "label": "inference or proposal derived", "shape": "box", "size": 10, "title": "\u3010\u5b8c\u6574\u7ed3\u8bba\u3011\nThe inference or proposal derived from the evidence (The \u0027Therefore...\u0027)"}, {"font": {"color": "white"}, "group": "Treatment", "id": "biomarker procalcitonin PCT has", "label": "biomarker procalcitonin PCT has", "shape": "ellipse", "size": 10, "title": "\u3010\u5b8c\u6574\u8bc1\u636e\u3011\nThe biomarker procalcitonin (PCT) has demonstrated diagnostic value in the detection of bacterial sepsis, with higher levels typically observed in Gram-negative compared to Gram-positive infections"}, {"font": {"color": "white"}, "group": "Treatment", "id": "Procalcitonin biomarker early sepsis", "label": "Procalcitonin biomarker early sepsis", "shape": "box", "size": 10, "title": "\u3010\u5b8c\u6574\u7ed3\u8bba\u3011\nProcalcitonin is a biomarker for early sepsis diagnosis"}, {"font": {"color": "white"}, "group": "Treatment", "id": "majority sepsis communityacquired and", "label": "majority sepsis communityacquired and", "shape": "ellipse", "size": 10, "title": "\u3010\u5b8c\u6574\u8bc1\u636e\u3011\nThe majority of sepsis is community-acquired, and progression can be insidious, making diagnosis difficult [3, 4]"}, {"font": {"color": "white"}, "group": "Treatment", "id": "Therefore early diagnosis sepsis", "label": "Therefore early diagnosis sepsis", "shape": "box", "size": 10, "title": "\u3010\u5b8c\u6574\u7ed3\u8bba\u3011\nTherefore, early diagnosis of sepsis is crucial for improving patient outcomes."}, {"font": {"color": "white"}, "group": "Treatment", "id": "current recommendation identifying both", "label": "current recommendation identifying both", "shape": "ellipse", "size": 10, "title": "\u3010\u5b8c\u6574\u8bc1\u636e\u3011\nThe current recommendation for identifying both sepsis and septic shock is the use of the SOFA score. Despite this initial subjectivity, the SOFA calibration is correct and properly adjusted to the subsequent evolution of the patient."}, {"font": {"color": "white"}, "group": "Treatment", "id": "SOFA score simple system", "label": "SOFA score simple system", "shape": "box", "size": 10, "title": "\u3010\u5b8c\u6574\u7ed3\u8bba\u3011\nThe SOFA score is a simple system, which uses accessible parameters in daily clinical practice to identify dysfunction or failure of the key organs as a result of sepsis."}, {"font": {"color": "white"}, "group": "Treatment", "id": "prevailing characterization sepsis was", "label": "prevailing characterization sepsis was", "shape": "ellipse", "size": 10, "title": "\u3010\u5b8c\u6574\u8bc1\u636e\u3011\nThe prevailing characterization of sepsis was that of an infection-induced systemic inflammatory response syndrome (SIRS) that led to shock and organ dysfunction often remote from the source of infection."}, {"font": {"color": "white"}, "group": "Treatment", "id": "objective this report summarize", "label": "objective this report summarize", "shape": "box", "size": 10, "title": "\u3010\u5b8c\u6574\u7ed3\u8bba\u3011\nThe objective of this report is to summarize recent evidence-based practices for the diagnosis and initial management of children with sepsis, including the increasing emphasis on sepsis sub-phenotypes linked to precision therapeutics."}, {"font": {"color": "white"}, "group": "Treatment", "id": "X Fan et al", "label": "X Fan et al", "shape": "ellipse", "size": 10, "title": "\u3010\u5b8c\u6574\u8bc1\u636e\u3011\nX. Fan et al. discuss the effects of sepsis on the amount, surface molecule expression, cytokine secretion, and T-cell activating function of dendritic cells and the underlying mechanisms in their review \u201cAlterations of Dendritic Cells in Sepsis: Featured Role in Immunoparalysis.\u201d"}, {"font": {"color": "white"}, "group": "Treatment", "id": "Dendritic cells play crucial", "label": "Dendritic cells play crucial", "shape": "box", "size": 10, "title": "\u3010\u5b8c\u6574\u7ed3\u8bba\u3011\nDendritic cells play a crucial role in sepsis by serving as professional antigen presenting cells and being involved in the aberrant immune response to sepsis."}, {"font": {"color": "white"}, "group": "Treatment", "id": "Historytaking will highlight factors", "label": "Historytaking will highlight factors", "shape": "ellipse", "size": 10, "title": "\u3010\u5b8c\u6574\u8bc1\u636e\u3011\nHistory-taking will highlight factors like immune system competence and the level of systemic reserves to fight infections."}, {"font": {"color": "white"}, "group": "Treatment", "id": "physical examination can identify", "label": "physical examination can identify", "shape": "box", "size": 10, "title": "\u3010\u5b8c\u6574\u7ed3\u8bba\u3011\nA physical examination can identify clinical observations outside normal limits."}, {"font": {"color": "white"}, "group": "Diagnosis", "id": "Recent outbreaks acute viral", "label": "Recent outbreaks acute viral", "shape": "ellipse", "size": 10, "title": "\u3010\u5b8c\u6574\u8bc1\u636e\u3011\nRecent outbreaks of acute viral infections, including Middle East respiratory syndrome coronavirus (MERS-CoV), influenza virus, and severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2), among other regional epidemics, have underscored the role of viral pathogenesis in sepsis, particu- larly when critically ill patients exhibit classic symptoms indicative of sepsis."}, {"font": {"color": "white"}, "group": "Diagnosis", "id": "Viral sepsis often underdiagnosed", "label": "Viral sepsis often underdiagnosed", "shape": "box", "size": 10, "title": "\u3010\u5b8c\u6574\u7ed3\u8bba\u3011\nViral sepsis is often underdiagnosed because standard evaluations typically exclude viral panels."}, {"font": {"color": "white"}, "group": "Diagnosis", "id": "discovery lactylation modifications sepsis", "label": "discovery lactylation modifications sepsis", "shape": "ellipse", "size": 10, "title": "\u3010\u5b8c\u6574\u8bc1\u636e\u3011\nThe discovery of lactylation modifications in sepsis patients and the study of lactylation modifications in sepsis led to the conclusion that lactate is a fundamental member of energy conversion through blood circulation."}, {"font": {"color": "white"}, "group": "Diagnosis", "id": "Lactate can directly promote", "label": "Lactate can directly promote", "shape": "box", "size": 10, "title": "\u3010\u5b8c\u6574\u7ed3\u8bba\u3011\nLactate can directly promote histone lactylation and regulate protein gene expression."}, {"font": {"color": "white"}, "group": "Diagnosis", "id": "incidence sepsis and septic", "label": "incidence sepsis and septic", "shape": "ellipse", "size": 10, "title": "\u3010\u5b8c\u6574\u8bc1\u636e\u3011\nThe incidence of sepsis and septic shock has been steadily increasing since the first concept definition in 1991."}, {"font": {"color": "white"}, "group": "Diagnosis", "id": "new definition sepsis 2016", "label": "new definition sepsis 2016", "shape": "box", "size": 10, "title": "\u3010\u5b8c\u6574\u7ed3\u8bba\u3011\nThe new definition of sepsis (2016) is more specific than the previous one and allows easier recognition of sepsis in everyday clinical practice."}, {"font": {"color": "white"}, "group": "Diagnosis", "id": "2016 sepsis definition update", "label": "2016 sepsis definition update", "shape": "ellipse", "size": 10, "title": "\u3010\u5b8c\u6574\u8bc1\u636e\u3011\nThe 2016 sepsis definition update in adult patients (Sepsis-3) included a systematic review of reported criteria used to identify adults with septic shock (5). This review focused on hemodynamic criteria, was pri- marily limited to studies from upper middle-income countries (UMICs) and high-income countries (HICs), and specifically excluded pediatric studies."}, {"font": {"color": "white"}, "group": "Diagnosis", "id": "platelet count PT ratio", "label": "platelet count PT ratio", "shape": "ellipse", "size": 10, "title": "\u3010\u5b8c\u6574\u8bc1\u636e\u3011\nThe platelet count, PT ratio and total SOFA score obtained just before the start of treatment were examined in relation to the 28-day mortality rate."}]);
+                  edges = new vis.DataSet([{"color": "#4caf50", "from": "introduction SIC criteria and", "title": "Source: 39302568.pdf\nRelation: Support", "to": "SIC criteria and scoring", "width": 1}, {"color": "#ff4444", "from": "Neonatal sepsis frequent cause", "title": "Source: 31747556.pdf\nRelation: Does this paper SUPPORT a new method or CONTRADICT an old one? (Value: \u0027Support\u0027 or \u0027Contradict\u0027)", "to": "Early neonatal sepsis classi\ufb01ed", "width": 1}, {"color": "#4caf50", "from": "incidence sepsis or septic", "title": "Source: 34340174.pdf\nRelation: Supports", "to": "incidence parapneumonic effusion significant", "width": 1}, {"color": "#ff4444", "from": "high mortality rate associated", "title": "Source: 33236524.pdf\nRelation: Contradict", "to": "Empirical antibiotic administration sepsis", "width": 1}, {"color": "#ff4444", "from": "pathophysiology sepsis has yet", "title": "Source: 38577320.pdf\nRelation: Contradict", "to": "complex pathophysiology sepsis suggests", "width": 1}, {"color": "#4caf50", "from": "raw data observation or", "title": "Source: 30915218.pdf\nRelation: Supports\nAlso in: 30915218.pdf", "to": "inference or proposal derived", "width": 1}, {"color": "#4caf50", "from": "biomarker procalcitonin PCT has", "title": "Source: 40685448.pdf\nRelation: SUPPORT", "to": "Procalcitonin biomarker early sepsis", "width": 1}, {"color": "#4caf50", "from": "majority sepsis communityacquired and", "title": "Source: 34446092.pdf\nRelation: Supports", "to": "Therefore early diagnosis sepsis", "width": 1}, {"color": "#4caf50", "from": "current recommendation identifying both", "title": "Source: 29022217.pdf\nRelation: Supports", "to": "SOFA score simple system", "width": 1}, {"color": "#4caf50", "from": "prevailing characterization sepsis was", "title": "Source: 38084084.pdf\nRelation: Supports\nAlso in: 38084084.pdf", "to": "objective this report summarize", "width": 1}, {"color": "#4caf50", "from": "X Fan et al", "title": "Source: 25834828.pdf\nRelation: SUPPORT", "to": "Dendritic cells play crucial", "width": 1}, {"color": "#4caf50", "from": "Historytaking will highlight factors", "title": "Source: 32978579.pdf\nRelation: Supports", "to": "physical examination can identify", "width": 1}, {"color": "#ff4444", "from": "Recent outbreaks acute viral", "title": "Source: 39676169.pdf\nRelation: Contradict", "to": "Viral sepsis often underdiagnosed", "width": 1}, {"color": "#4caf50", "from": "discovery lactylation modifications sepsis", "title": "Source: 37904710.pdf\nRelation: SUPPORT", "to": "Lactate can directly promote", "width": 1}, {"color": "#4caf50", "from": "incidence sepsis and septic", "title": "Source: 36304809.pdf\nRelation: Support", "to": "new definition sepsis 2016", "width": 1}, {"color": "#ff4444", "from": "2016 sepsis definition update", "title": "Source: 34612847.pdf\nRelation: Contradict", "to": "2016 sepsis definition update", "width": 1}, {"color": "#4caf50", "from": "platelet count PT ratio", "title": "Source: 28963294.pdf\nRelation: SUPPORT", "to": "platelet count PT ratio", "width": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"nodes": {"font": {"size": 16, "color": "white"}, "borderWidth": 2}, "edges": {"color": {"inherit": false}, "smooth": {"type": "continuous"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}}, "physics": {"forceAtlas2Based": {"gravitationalConstant": -80, "centralGravity": 0.005, "springLength": 150, "springConstant": 0.05}, "maxVelocity": 40, "solver": "forceAtlas2Based"}, "groups": {"Diagnosis": {"color": "#2196f3", "shape": "dot"}, "Treatment": {"color": "#ff9800", "shape": "dot"}}, "interaction": {"hover": true, "tooltipDelay": 100}};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

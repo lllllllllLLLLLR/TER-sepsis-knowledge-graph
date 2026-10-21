@@ -1,0 +1,459 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 800px;
+                 background-color: #222222;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+             #loadingBar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width: 100%;
+                 height: 800px;
+                 background-color:rgba(200,200,200,0.8);
+                 -webkit-transition: all 0.5s ease;
+                 -moz-transition: all 0.5s ease;
+                 -ms-transition: all 0.5s ease;
+                 -o-transition: all 0.5s ease;
+                 transition: all 0.5s ease;
+                 opacity:1;
+             }
+
+             #bar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width:20px;
+                 height:20px;
+                 margin:auto auto auto auto;
+                 border-radius:11px;
+                 border:2px solid rgba(30,30,30,0.05);
+                 background: rgb(0, 173, 246); /* Old browsers */
+                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+             }
+
+             #border {
+                 position:absolute;
+                 top:10px;
+                 left:10px;
+                 width:500px;
+                 height:23px;
+                 margin:auto auto auto auto;
+                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+                 border-radius:10px;
+             }
+
+             #text {
+                 position:absolute;
+                 top:8px;
+                 left:530px;
+                 width:30px;
+                 height:50px;
+                 margin:auto auto auto auto;
+                 font-size:22px;
+                 color: #000000;
+             }
+
+             div.outerBorder {
+                 position:relative;
+                 top:400px;
+                 width:600px;
+                 height:44px;
+                 margin:auto auto auto auto;
+                 border:8px solid rgba(0,0,0,0.1);
+                 background: rgb(252,252,252); /* Old browsers */
+                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+                 border-radius:72px;
+                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+             }
+             
+
+             
+             #config {
+                 float: left;
+                 width: 400px;
+                 height: 600px;
+             }
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+            <div id="loadingBar">
+              <div class="outerBorder">
+                <div id="text">0%</div>
+                <div id="border">
+                  <div id="bar"></div>
+                </div>
+              </div>
+            </div>
+        
+        
+            <div id="config"></div>
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "font": {"color": "white"}, "id": "31747556.pdf", "label": "31747556.pdf", "shape": "dot", "size": 10, "title": "31747556.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Early_Sepsis_Diagnosis", "label": "Early_Sepsis_Diagnosis", "shape": "dot", "size": 10, "title": "Early_Sepsis_Diagnosis"}, {"color": "#4caf50", "font": {"color": "white"}, "id": "Paper", "label": "Paper", "shape": "dot", "size": 25, "title": "Paper"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Neonatal_sepsis_is_a_frequent", "label": "Neonatal_sepsis_is_a_frequent", "shape": "dot", "size": 10, "title": "Neonatal_sepsis_is_a_frequent"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Early Sepsis Diagnosis", "label": "Early Sepsis Diagnosis", "shape": "dot", "size": 10, "title": "Early Sepsis Diagnosis"}, {"color": "#ff9800", "font": {"color": "white"}, "id": "Topic", "label": "Topic", "shape": "star", "size": 40, "title": "Topic"}, {"color": "#9e9e9e", "font": {"color": "white"}, "id": "Evidence", "label": "Evidence", "shape": "ellipse", "size": 10, "title": "Evidence"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Early_neonatal_sepsis_is_class", "label": "Early_neonatal_sepsis_is_class", "shape": "dot", "size": 10, "title": "Early_neonatal_sepsis_is_class"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Neonatal sepsis is a frequent cause of neonatal morbidity and mortality.", "label": "Neonatal sepsis is a frequent cause of neonatal morbidity and mortality.", "shape": "dot", "size": 10, "title": "Neonatal sepsis is a frequent cause of neonatal morbidity and mortality."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "34446092.pdf", "label": "34446092.pdf", "shape": "dot", "size": 10, "title": "34446092.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_majority_of_sepsis_is_comm", "label": "The_majority_of_sepsis_is_comm", "shape": "dot", "size": 10, "title": "The_majority_of_sepsis_is_comm"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_complex_pathophysiology_of", "label": "The_complex_pathophysiology_of", "shape": "dot", "size": 10, "title": "The_complex_pathophysiology_of"}, {"color": "#2196f3", "font": {"color": "white"}, "id": "Claim", "label": "Claim", "shape": "box", "size": 10, "title": "Claim"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The complex pathophysiology of sepsis suggests that a single biomarker cannot identify, stratify, and describe patients affected by septic shock.", "label": "The complex pathophysiology of sepsis suggests that a single biomarker cannot identify, stratify, and describe patients affected by septic shock.", "shape": "dot", "size": 10, "title": "The complex pathophysiology of sepsis suggests that a single biomarker cannot identify, stratify, and describe patients affected by septic shock."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Role_of_Dendritic_Cells_in_Sepsis", "label": "Role_of_Dendritic_Cells_in_Sepsis", "shape": "dot", "size": 10, "title": "Role_of_Dendritic_Cells_in_Sepsis"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Role of Dendritic Cells in Sepsis", "label": "Role of Dendritic Cells in Sepsis", "shape": "dot", "size": 10, "title": "Role of Dendritic Cells in Sepsis"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Empirical_antibiotic_administr", "label": "Empirical_antibiotic_administr", "shape": "dot", "size": 10, "title": "Empirical_antibiotic_administr"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Empirical antibiotic administration in sepsis is not as e\ufb03cacious as therapeutics targeted A. Claxton", "label": "Empirical antibiotic administration in sepsis is not as e\ufb03cacious as therapeutics targeted A. Claxton", "shape": "dot", "size": 10, "title": "Empirical antibiotic administration in sepsis is not as e\ufb03cacious as therapeutics targeted A. Claxton"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Early neonatal sepsis is classi\ufb01ed according to the time of onset as early or late.", "label": "Early neonatal sepsis is classi\ufb01ed according to the time of onset as early or late.", "shape": "dot", "size": 10, "title": "Early neonatal sepsis is classi\ufb01ed according to the time of onset as early or late."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "A_physical_examination_can_ide", "label": "A_physical_examination_can_ide", "shape": "dot", "size": 10, "title": "A_physical_examination_can_ide"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "A physical examination can identify clinical observations outside normal limits.", "label": "A physical examination can identify clinical observations outside normal limits.", "shape": "dot", "size": 10, "title": "A physical examination can identify clinical observations outside normal limits."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The majority of sepsis is community-acquired, and progression can be insidious, making diagnosis difficult [3, 4]", "label": "The majority of sepsis is community-acquired, and progression can be insidious, making diagnosis difficult [3, 4]", "shape": "dot", "size": 10, "title": "The majority of sepsis is community-acquired, and progression can be insidious, making diagnosis difficult [3, 4]"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Therefore%2C_early_diagnosis_of", "label": "Therefore%2C_early_diagnosis_of", "shape": "dot", "size": 10, "title": "Therefore%2C_early_diagnosis_of"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "25834828.pdf", "label": "25834828.pdf", "shape": "dot", "size": 10, "title": "25834828.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "X._Fan_et_al._discuss_the_effe", "label": "X._Fan_et_al._discuss_the_effe", "shape": "dot", "size": 10, "title": "X._Fan_et_al._discuss_the_effe"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_high_mortality_rate_associ", "label": "The_high_mortality_rate_associ", "shape": "dot", "size": 10, "title": "The_high_mortality_rate_associ"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The high mortality rate associated with delayed treatment and the lack of speci\ufb01c diagnostic and therapeutic guidance, clinicians empirically administer broad-spectrum an- tibiotics as early as possible.", "label": "The high mortality rate associated with delayed treatment and the lack of speci\ufb01c diagnostic and therapeutic guidance, clinicians empirically administer broad-spectrum an- tibiotics as early as possible.", "shape": "dot", "size": 10, "title": "The high mortality rate associated with delayed treatment and the lack of speci\ufb01c diagnostic and therapeutic guidance, clinicians empirically administer broad-spectrum an- tibiotics as early as possible."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "38577320.pdf", "label": "38577320.pdf", "shape": "dot", "size": 10, "title": "38577320.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_pathophysiology_of_sepsis", "label": "The_pathophysiology_of_sepsis", "shape": "dot", "size": 10, "title": "The_pathophysiology_of_sepsis"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_SOFA_score_is_a_simple_sys", "label": "The_SOFA_score_is_a_simple_sys", "shape": "dot", "size": 10, "title": "The_SOFA_score_is_a_simple_sys"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The SOFA score is a simple system, which uses accessible parameters in daily clinical practice to identify dysfunction or failure of the key organs as a result of sepsis.", "label": "The SOFA score is a simple system, which uses accessible parameters in daily clinical practice to identify dysfunction or failure of the key organs as a result of sepsis.", "shape": "dot", "size": 10, "title": "The SOFA score is a simple system, which uses accessible parameters in daily clinical practice to identify dysfunction or failure of the key organs as a result of sepsis."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "History-taking_will_highlight", "label": "History-taking_will_highlight", "shape": "dot", "size": 10, "title": "History-taking_will_highlight"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "History-taking will highlight factors like immune system competence and the level of systemic reserves to fight infections.", "label": "History-taking will highlight factors like immune system competence and the level of systemic reserves to fight infections.", "shape": "dot", "size": 10, "title": "History-taking will highlight factors like immune system competence and the level of systemic reserves to fight infections."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "36304809.pdf", "label": "36304809.pdf", "shape": "dot", "size": 10, "title": "36304809.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_incidence_of_sepsis_and_se", "label": "The_incidence_of_sepsis_and_se", "shape": "dot", "size": 10, "title": "The_incidence_of_sepsis_and_se"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The pathophysiology of sepsis has yet to be comprehensively understood, but it is evident that this syndrome involves a complex interplay between the pathogen and host immune system.", "label": "The pathophysiology of sepsis has yet to be comprehensively understood, but it is evident that this syndrome involves a complex interplay between the pathogen and host immune system.", "shape": "dot", "size": 10, "title": "The pathophysiology of sepsis has yet to be comprehensively understood, but it is evident that this syndrome involves a complex interplay between the pathogen and host immune system."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "32978579.pdf", "label": "32978579.pdf", "shape": "dot", "size": 10, "title": "32978579.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_SIC_criteria_and_scoring_s", "label": "The_SIC_criteria_and_scoring_s", "shape": "dot", "size": 10, "title": "The_SIC_criteria_and_scoring_s"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The SIC criteria and scoring system are a valuable tool for early detection of sepsis-associated DIC.", "label": "The SIC criteria and scoring system are a valuable tool for early detection of sepsis-associated DIC.", "shape": "dot", "size": 10, "title": "The SIC criteria and scoring system are a valuable tool for early detection of sepsis-associated DIC."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Viral_Sepsis", "label": "Viral_Sepsis", "shape": "dot", "size": 10, "title": "Viral_Sepsis"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Viral Sepsis", "label": "Viral Sepsis", "shape": "dot", "size": 10, "title": "Viral Sepsis"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The incidence of sepsis and septic shock has been steadily increasing since the first concept definition in 1991.", "label": "The incidence of sepsis and septic shock has been steadily increasing since the first concept definition in 1991.", "shape": "dot", "size": 10, "title": "The incidence of sepsis and septic shock has been steadily increasing since the first concept definition in 1991."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_new_definition_of_sepsis_%28", "label": "The_new_definition_of_sepsis_%28", "shape": "dot", "size": 10, "title": "The_new_definition_of_sepsis_%28"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "30915218.pdf", "label": "30915218.pdf", "shape": "dot", "size": 10, "title": "30915218.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_raw_data%2C_observation%2C_or", "label": "The_raw_data%2C_observation%2C_or", "shape": "dot", "size": 10, "title": "The_raw_data%2C_observation%2C_or"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "34340174.pdf", "label": "34340174.pdf", "shape": "dot", "size": 10, "title": "34340174.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Clinical_Presentation_and_Diagnosis", "label": "Clinical_Presentation_and_Diagnosis", "shape": "dot", "size": 10, "title": "Clinical_Presentation_and_Diagnosis"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_incidence_of_sepsis_or_sep", "label": "The_incidence_of_sepsis_or_sep", "shape": "dot", "size": 10, "title": "The_incidence_of_sepsis_or_sep"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Procalcitonin_is_a_biomarker_f", "label": "Procalcitonin_is_a_biomarker_f", "shape": "dot", "size": 10, "title": "Procalcitonin_is_a_biomarker_f"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Procalcitonin is a biomarker for early sepsis diagnosis", "label": "Procalcitonin is a biomarker for early sepsis diagnosis", "shape": "dot", "size": 10, "title": "Procalcitonin is a biomarker for early sepsis diagnosis"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_introduction_of_the_SIC_cr", "label": "The_introduction_of_the_SIC_cr", "shape": "dot", "size": 10, "title": "The_introduction_of_the_SIC_cr"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The introduction of the SIC criteria and scoring system for sepsis-induced coagulopathy (SIC) in 2017 allowed for early detection of DIC, which is a major driver of sepsis-associated mortality.", "label": "The introduction of the SIC criteria and scoring system for sepsis-induced coagulopathy (SIC) in 2017 allowed for early detection of DIC, which is a major driver of sepsis-associated mortality.", "shape": "dot", "size": 10, "title": "The introduction of the SIC criteria and scoring system for sepsis-induced coagulopathy (SIC) in 2017 allowed for early detection of DIC, which is a major driver of sepsis-associated mortality."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_biomarker_procalcitonin_%28P", "label": "The_biomarker_procalcitonin_%28P", "shape": "dot", "size": 10, "title": "The_biomarker_procalcitonin_%28P"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The biomarker procalcitonin (PCT) has demonstrated diagnostic value in the detection of bacterial sepsis, with higher levels typically observed in Gram-negative compared to Gram-positive infections", "label": "The biomarker procalcitonin (PCT) has demonstrated diagnostic value in the detection of bacterial sepsis, with higher levels typically observed in Gram-negative compared to Gram-positive infections", "shape": "dot", "size": 10, "title": "The biomarker procalcitonin (PCT) has demonstrated diagnostic value in the detection of bacterial sepsis, with higher levels typically observed in Gram-negative compared to Gram-positive infections"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "nan", "label": "nan", "shape": "dot", "size": 10, "title": "nan"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "26903336.pdf", "label": "26903336.pdf", "shape": "dot", "size": 10, "title": "26903336.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "40384873.pdf", "label": "40384873.pdf", "shape": "dot", "size": 10, "title": "40384873.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "40685448.pdf", "label": "40685448.pdf", "shape": "dot", "size": 10, "title": "40685448.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Viral_sepsis_is_often_underdia", "label": "Viral_sepsis_is_often_underdia", "shape": "dot", "size": 10, "title": "Viral_sepsis_is_often_underdia"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Viral sepsis is often underdiagnosed because standard evaluations typically exclude viral panels.", "label": "Viral sepsis is often underdiagnosed because standard evaluations typically exclude viral panels.", "shape": "dot", "size": 10, "title": "Viral sepsis is often underdiagnosed because standard evaluations typically exclude viral panels."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "28963294.pdf", "label": "28963294.pdf", "shape": "dot", "size": 10, "title": "28963294.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_platelet_count%2C_PT_ratio_a", "label": "The_platelet_count%2C_PT_ratio_a", "shape": "dot", "size": 10, "title": "The_platelet_count%2C_PT_ratio_a"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "38084084.pdf", "label": "38084084.pdf", "shape": "dot", "size": 10, "title": "38084084.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_prevailing_characterizatio", "label": "The_prevailing_characterizatio", "shape": "dot", "size": 10, "title": "The_prevailing_characterizatio"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_inference_or_proposal_deri", "label": "The_inference_or_proposal_deri", "shape": "dot", "size": 10, "title": "The_inference_or_proposal_deri"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The raw data, observation, or statistical finding (The \u0027Because...\u0027)", "label": "The raw data, observation, or statistical finding (The \u0027Because...\u0027)", "shape": "dot", "size": 10, "title": "The raw data, observation, or statistical finding (The \u0027Because...\u0027)"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "39676169.pdf", "label": "39676169.pdf", "shape": "dot", "size": 10, "title": "39676169.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Recent_outbreaks_of_acute_vira", "label": "Recent_outbreaks_of_acute_vira", "shape": "dot", "size": 10, "title": "Recent_outbreaks_of_acute_vira"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Recent outbreaks of acute viral infections, including Middle East respiratory syndrome coronavirus (MERS-CoV), influenza virus, and severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2), among other regional epidemics, have underscored the role of viral pathogenesis in sepsis, particu- larly when critically ill patients exhibit classic symptoms indicative of sepsis.", "label": "Recent outbreaks of acute viral infections, including Middle East respiratory syndrome coronavirus (MERS-CoV), influenza virus, and severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2), among other regional epidemics, have underscored the role of viral pathogenesis in sepsis, particu- larly when critically ill patients exhibit classic symptoms indicative of sepsis.", "shape": "dot", "size": 10, "title": "Recent outbreaks of acute viral infections, including Middle East respiratory syndrome coronavirus (MERS-CoV), influenza virus, and severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2), among other regional epidemics, have underscored the role of viral pathogenesis in sepsis, particu- larly when critically ill patients exhibit classic symptoms indicative of sepsis."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "32699026.pdf", "label": "32699026.pdf", "shape": "dot", "size": 10, "title": "32699026.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "X. Fan et al. discuss the effects of sepsis on the amount, surface molecule expression, cytokine secretion, and T-cell activating function of dendritic cells and the underlying mechanisms in their review \u201cAlterations of Dendritic Cells in Sepsis: Featured Role in Immunoparalysis.\u201d", "label": "X. Fan et al. discuss the effects of sepsis on the amount, surface molecule expression, cytokine secretion, and T-cell activating function of dendritic cells and the underlying mechanisms in their review \u201cAlterations of Dendritic Cells in Sepsis: Featured Role in Immunoparalysis.\u201d", "shape": "dot", "size": 10, "title": "X. Fan et al. discuss the effects of sepsis on the amount, surface molecule expression, cytokine secretion, and T-cell activating function of dendritic cells and the underlying mechanisms in their review \u201cAlterations of Dendritic Cells in Sepsis: Featured Role in Immunoparalysis.\u201d"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Dendritic_cells_play_a_crucial", "label": "Dendritic_cells_play_a_crucial", "shape": "dot", "size": 10, "title": "Dendritic_cells_play_a_crucial"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The inference or proposal derived from the evidence (The \u0027Therefore...\u0027)", "label": "The inference or proposal derived from the evidence (The \u0027Therefore...\u0027)", "shape": "dot", "size": 10, "title": "The inference or proposal derived from the evidence (The \u0027Therefore...\u0027)"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Lactate_can_directly_promote_h", "label": "Lactate_can_directly_promote_h", "shape": "dot", "size": 10, "title": "Lactate_can_directly_promote_h"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Lactate can directly promote histone lactylation and regulate protein gene expression.", "label": "Lactate can directly promote histone lactylation and regulate protein gene expression.", "shape": "dot", "size": 10, "title": "Lactate can directly promote histone lactylation and regulate protein gene expression."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "29022217.pdf", "label": "29022217.pdf", "shape": "dot", "size": 10, "title": "29022217.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_current_recommendation_for", "label": "The_current_recommendation_for", "shape": "dot", "size": 10, "title": "The_current_recommendation_for"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "33236524.pdf", "label": "33236524.pdf", "shape": "dot", "size": 10, "title": "33236524.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "29626019.pdf", "label": "29626019.pdf", "shape": "dot", "size": 10, "title": "29626019.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "39256242.pdf", "label": "39256242.pdf", "shape": "dot", "size": 10, "title": "39256242.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "39302568.pdf", "label": "39302568.pdf", "shape": "dot", "size": 10, "title": "39302568.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_objective_of_this_report_i", "label": "The_objective_of_this_report_i", "shape": "dot", "size": 10, "title": "The_objective_of_this_report_i"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The prevailing characterization of sepsis was that of an infection-induced systemic inflammatory response syndrome (SIRS) that led to shock and organ dysfunction often remote from the source of infection.", "label": "The prevailing characterization of sepsis was that of an infection-induced systemic inflammatory response syndrome (SIRS) that led to shock and organ dysfunction often remote from the source of infection.", "shape": "dot", "size": 10, "title": "The prevailing characterization of sepsis was that of an infection-induced systemic inflammatory response syndrome (SIRS) that led to shock and organ dysfunction often remote from the source of infection."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The platelet count, PT ratio and total SOFA score were independent predictors of a fatal outcome in a logistic regression model.", "label": "The platelet count, PT ratio and total SOFA score were independent predictors of a fatal outcome in a logistic regression model.", "shape": "dot", "size": 10, "title": "The platelet count, PT ratio and total SOFA score were independent predictors of a fatal outcome in a logistic regression model."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The platelet count, PT ratio and total SOFA score obtained just before the start of treatment were examined in relation to the 28-day mortality rate.", "label": "The platelet count, PT ratio and total SOFA score obtained just before the start of treatment were examined in relation to the 28-day mortality rate.", "shape": "dot", "size": 10, "title": "The platelet count, PT ratio and total SOFA score obtained just before the start of treatment were examined in relation to the 28-day mortality rate."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The objective of this report is to summarize recent evidence-based practices for the diagnosis and initial management of children with sepsis, including the increasing emphasis on sepsis sub-phenotypes linked to precision therapeutics.", "label": "The objective of this report is to summarize recent evidence-based practices for the diagnosis and initial management of children with sepsis, including the increasing emphasis on sepsis sub-phenotypes linked to precision therapeutics.", "shape": "dot", "size": 10, "title": "The objective of this report is to summarize recent evidence-based practices for the diagnosis and initial management of children with sepsis, including the increasing emphasis on sepsis sub-phenotypes linked to precision therapeutics."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Clinical Presentation and Diagnosis", "label": "Clinical Presentation and Diagnosis", "shape": "dot", "size": 10, "title": "Clinical Presentation and Diagnosis"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The current recommendation for identifying both sepsis and septic shock is the use of the SOFA score. Despite this initial subjectivity, the SOFA calibration is correct and properly adjusted to the subsequent evolution of the patient.", "label": "The current recommendation for identifying both sepsis and septic shock is the use of the SOFA score. Despite this initial subjectivity, the SOFA calibration is correct and properly adjusted to the subsequent evolution of the patient.", "shape": "dot", "size": 10, "title": "The current recommendation for identifying both sepsis and septic shock is the use of the SOFA score. Despite this initial subjectivity, the SOFA calibration is correct and properly adjusted to the subsequent evolution of the patient."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The new definition of sepsis (2016) is more specific than the previous one and allows easier recognition of sepsis in everyday clinical practice.", "label": "The new definition of sepsis (2016) is more specific than the previous one and allows easier recognition of sepsis in everyday clinical practice.", "shape": "dot", "size": 10, "title": "The new definition of sepsis (2016) is more specific than the previous one and allows easier recognition of sepsis in everyday clinical practice."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_incidence_of_parapneumonic", "label": "The_incidence_of_parapneumonic", "shape": "dot", "size": 10, "title": "The_incidence_of_parapneumonic"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The incidence of sepsis or septic shock in patients with an infected pleural space is not well reported in the literature.", "label": "The incidence of sepsis or septic shock in patients with an infected pleural space is not well reported in the literature.", "shape": "dot", "size": 10, "title": "The incidence of sepsis or septic shock in patients with an infected pleural space is not well reported in the literature."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Dendritic cells play a crucial role in sepsis by serving as professional antigen presenting cells and being involved in the aberrant immune response to sepsis.", "label": "Dendritic cells play a crucial role in sepsis by serving as professional antigen presenting cells and being involved in the aberrant immune response to sepsis.", "shape": "dot", "size": 10, "title": "Dendritic cells play a crucial role in sepsis by serving as professional antigen presenting cells and being involved in the aberrant immune response to sepsis."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_2016_sepsis_definition_upd", "label": "The_2016_sepsis_definition_upd", "shape": "dot", "size": 10, "title": "The_2016_sepsis_definition_upd"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The 2016 sepsis definition update in adult patients (Sepsis-3) did not consider pediatric patients.", "label": "The 2016 sepsis definition update in adult patients (Sepsis-3) did not consider pediatric patients.", "shape": "dot", "size": 10, "title": "The 2016 sepsis definition update in adult patients (Sepsis-3) did not consider pediatric patients."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The 2016 sepsis definition update in adult patients (Sepsis-3) included a systematic review of reported criteria used to identify adults with septic shock (5). This review focused on hemodynamic criteria, was pri- marily limited to studies from upper middle-income countries (UMICs) and high-income countries (HICs), and specifically excluded pediatric studies.", "label": "The 2016 sepsis definition update in adult patients (Sepsis-3) included a systematic review of reported criteria used to identify adults with septic shock (5). This review focused on hemodynamic criteria, was pri- marily limited to studies from upper middle-income countries (UMICs) and high-income countries (HICs), and specifically excluded pediatric studies.", "shape": "dot", "size": 10, "title": "The 2016 sepsis definition update in adult patients (Sepsis-3) included a systematic review of reported criteria used to identify adults with septic shock (5). This review focused on hemodynamic criteria, was pri- marily limited to studies from upper middle-income countries (UMICs) and high-income countries (HICs), and specifically excluded pediatric studies."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "37904710.pdf", "label": "37904710.pdf", "shape": "dot", "size": 10, "title": "37904710.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The_discovery_of_lactylation_m", "label": "The_discovery_of_lactylation_m", "shape": "dot", "size": 10, "title": "The_discovery_of_lactylation_m"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The discovery of lactylation modifications in sepsis patients and the study of lactylation modifications in sepsis led to the conclusion that lactate is a fundamental member of energy conversion through blood circulation.", "label": "The discovery of lactylation modifications in sepsis patients and the study of lactylation modifications in sepsis led to the conclusion that lactate is a fundamental member of energy conversion through blood circulation.", "shape": "dot", "size": 10, "title": "The discovery of lactylation modifications in sepsis patients and the study of lactylation modifications in sepsis led to the conclusion that lactate is a fundamental member of energy conversion through blood circulation."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "34612847.pdf", "label": "34612847.pdf", "shape": "dot", "size": 10, "title": "34612847.pdf"}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "The incidence of parapneumonic effusion is a significant component of prognostic models to predict mortality from pneumonia.", "label": "The incidence of parapneumonic effusion is a significant component of prognostic models to predict mortality from pneumonia.", "shape": "dot", "size": 10, "title": "The incidence of parapneumonic effusion is a significant component of prognostic models to predict mortality from pneumonia."}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "Therefore, early diagnosis of sepsis is crucial for improving patient outcomes.", "label": "Therefore, early diagnosis of sepsis is crucial for improving patient outcomes.", "shape": "dot", "size": 10, "title": "Therefore, early diagnosis of sepsis is crucial for improving patient outcomes."}]);
+                  edges = new vis.DataSet([{"color": "#97c2fc", "from": "31747556.pdf", "label": "discusses", "to": "Early_Sepsis_Diagnosis", "width": 1}, {"color": "#cccccc", "from": "31747556.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#cccccc", "from": "31747556.pdf", "label": "providesEvidence", "to": "Neonatal_sepsis_is_a_frequent", "width": 1}, {"color": "#cccccc", "from": "31747556.pdf", "label": "title", "to": "31747556.pdf", "width": 1}, {"color": "#cccccc", "from": "Early_Sepsis_Diagnosis", "label": "rdf-schema#label", "to": "Early Sepsis Diagnosis", "width": 1}, {"color": "#cccccc", "from": "Early_Sepsis_Diagnosis", "label": "22-rdf-syntax-ns#type", "to": "Topic", "width": 1}, {"color": "#cccccc", "from": "Neonatal_sepsis_is_a_frequent", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "red", "from": "Neonatal_sepsis_is_a_frequent", "label": "contradicts", "to": "Early_neonatal_sepsis_is_class", "width": 1}, {"color": "#cccccc", "from": "Neonatal_sepsis_is_a_frequent", "label": "hasText", "to": "Neonatal sepsis is a frequent cause of neonatal morbidity and mortality.", "width": 1}, {"color": "#97c2fc", "from": "34446092.pdf", "label": "discusses", "to": "Early_Sepsis_Diagnosis", "width": 1}, {"color": "#cccccc", "from": "34446092.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#cccccc", "from": "34446092.pdf", "label": "providesEvidence", "to": "The_majority_of_sepsis_is_comm", "width": 1}, {"color": "#cccccc", "from": "34446092.pdf", "label": "title", "to": "34446092.pdf", "width": 1}, {"color": "#cccccc", "from": "The_complex_pathophysiology_of", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}, {"color": "#cccccc", "from": "The_complex_pathophysiology_of", "label": "hasText", "to": "The complex pathophysiology of sepsis suggests that a single biomarker cannot identify, stratify, and describe patients affected by septic shock.", "width": 1}, {"color": "#cccccc", "from": "Role_of_Dendritic_Cells_in_Sepsis", "label": "22-rdf-syntax-ns#type", "to": "Topic", "width": 1}, {"color": "#cccccc", "from": "Role_of_Dendritic_Cells_in_Sepsis", "label": "rdf-schema#label", "to": "Role of Dendritic Cells in Sepsis", "width": 1}, {"color": "#cccccc", "from": "Empirical_antibiotic_administr", "label": "hasText", "to": "Empirical antibiotic administration in sepsis is not as e\ufb03cacious as therapeutics targeted A. Claxton", "width": 1}, {"color": "#cccccc", "from": "Empirical_antibiotic_administr", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}, {"color": "#cccccc", "from": "Early_neonatal_sepsis_is_class", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}, {"color": "#cccccc", "from": "Early_neonatal_sepsis_is_class", "label": "hasText", "to": "Early neonatal sepsis is classi\ufb01ed according to the time of onset as early or late.", "width": 1}, {"color": "#cccccc", "from": "A_physical_examination_can_ide", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}, {"color": "#cccccc", "from": "A_physical_examination_can_ide", "label": "hasText", "to": "A physical examination can identify clinical observations outside normal limits.", "width": 1}, {"color": "#cccccc", "from": "The_majority_of_sepsis_is_comm", "label": "hasText", "to": "The majority of sepsis is community-acquired, and progression can be insidious, making diagnosis difficult [3, 4]", "width": 1}, {"color": "#cccccc", "from": "The_majority_of_sepsis_is_comm", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "green", "from": "The_majority_of_sepsis_is_comm", "label": "supports", "to": "Therefore%2C_early_diagnosis_of", "width": 1}, {"color": "#cccccc", "from": "25834828.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#cccccc", "from": "25834828.pdf", "label": "title", "to": "25834828.pdf", "width": 1}, {"color": "#97c2fc", "from": "25834828.pdf", "label": "discusses", "to": "Role_of_Dendritic_Cells_in_Sepsis", "width": 1}, {"color": "#cccccc", "from": "25834828.pdf", "label": "providesEvidence", "to": "X._Fan_et_al._discuss_the_effe", "width": 1}, {"color": "#cccccc", "from": "The_high_mortality_rate_associ", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "red", "from": "The_high_mortality_rate_associ", "label": "contradicts", "to": "Empirical_antibiotic_administr", "width": 1}, {"color": "#cccccc", "from": "The_high_mortality_rate_associ", "label": "hasText", "to": "The high mortality rate associated with delayed treatment and the lack of speci\ufb01c diagnostic and therapeutic guidance, clinicians empirically administer broad-spectrum an- tibiotics as early as possible.", "width": 1}, {"color": "#cccccc", "from": "38577320.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#cccccc", "from": "38577320.pdf", "label": "providesEvidence", "to": "The_pathophysiology_of_sepsis", "width": 1}, {"color": "#97c2fc", "from": "38577320.pdf", "label": "discusses", "to": "Early_Sepsis_Diagnosis", "width": 1}, {"color": "#cccccc", "from": "38577320.pdf", "label": "title", "to": "38577320.pdf", "width": 1}, {"color": "#cccccc", "from": "The_SOFA_score_is_a_simple_sys", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}, {"color": "#cccccc", "from": "The_SOFA_score_is_a_simple_sys", "label": "hasText", "to": "The SOFA score is a simple system, which uses accessible parameters in daily clinical practice to identify dysfunction or failure of the key organs as a result of sepsis.", "width": 1}, {"color": "#cccccc", "from": "History-taking_will_highlight", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "green", "from": "History-taking_will_highlight", "label": "supports", "to": "A_physical_examination_can_ide", "width": 1}, {"color": "#cccccc", "from": "History-taking_will_highlight", "label": "hasText", "to": "History-taking will highlight factors like immune system competence and the level of systemic reserves to fight infections.", "width": 1}, {"color": "#cccccc", "from": "36304809.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#97c2fc", "from": "36304809.pdf", "label": "discusses", "to": "Early_Sepsis_Diagnosis", "width": 1}, {"color": "#cccccc", "from": "36304809.pdf", "label": "title", "to": "36304809.pdf", "width": 1}, {"color": "#cccccc", "from": "36304809.pdf", "label": "providesEvidence", "to": "The_incidence_of_sepsis_and_se", "width": 1}, {"color": "red", "from": "The_pathophysiology_of_sepsis", "label": "contradicts", "to": "The_complex_pathophysiology_of", "width": 1}, {"color": "#cccccc", "from": "The_pathophysiology_of_sepsis", "label": "hasText", "to": "The pathophysiology of sepsis has yet to be comprehensively understood, but it is evident that this syndrome involves a complex interplay between the pathogen and host immune system.", "width": 1}, {"color": "#cccccc", "from": "The_pathophysiology_of_sepsis", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "#cccccc", "from": "32978579.pdf", "label": "title", "to": "32978579.pdf", "width": 1}, {"color": "#cccccc", "from": "32978579.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#97c2fc", "from": "32978579.pdf", "label": "discusses", "to": "Early_Sepsis_Diagnosis", "width": 1}, {"color": "#cccccc", "from": "32978579.pdf", "label": "providesEvidence", "to": "History-taking_will_highlight", "width": 1}, {"color": "#cccccc", "from": "The_SIC_criteria_and_scoring_s", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}, {"color": "#cccccc", "from": "The_SIC_criteria_and_scoring_s", "label": "hasText", "to": "The SIC criteria and scoring system are a valuable tool for early detection of sepsis-associated DIC.", "width": 1}, {"color": "#cccccc", "from": "Viral_Sepsis", "label": "22-rdf-syntax-ns#type", "to": "Topic", "width": 1}, {"color": "#cccccc", "from": "Viral_Sepsis", "label": "rdf-schema#label", "to": "Viral Sepsis", "width": 1}, {"color": "#cccccc", "from": "The_incidence_of_sepsis_and_se", "label": "hasText", "to": "The incidence of sepsis and septic shock has been steadily increasing since the first concept definition in 1991.", "width": 1}, {"color": "#cccccc", "from": "The_incidence_of_sepsis_and_se", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "green", "from": "The_incidence_of_sepsis_and_se", "label": "supports", "to": "The_new_definition_of_sepsis_%28", "width": 1}, {"color": "#cccccc", "from": "30915218.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#cccccc", "from": "30915218.pdf", "label": "providesEvidence", "to": "The_raw_data%2C_observation%2C_or", "width": 1}, {"color": "#cccccc", "from": "30915218.pdf", "label": "title", "to": "30915218.pdf", "width": 1}, {"color": "#97c2fc", "from": "30915218.pdf", "label": "discusses", "to": "Early_Sepsis_Diagnosis", "width": 1}, {"color": "#cccccc", "from": "34340174.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#cccccc", "from": "34340174.pdf", "label": "title", "to": "34340174.pdf", "width": 1}, {"color": "#97c2fc", "from": "34340174.pdf", "label": "discusses", "to": "Clinical_Presentation_and_Diagnosis", "width": 1}, {"color": "#cccccc", "from": "34340174.pdf", "label": "providesEvidence", "to": "The_incidence_of_sepsis_or_sep", "width": 1}, {"color": "#cccccc", "from": "Procalcitonin_is_a_biomarker_f", "label": "hasText", "to": "Procalcitonin is a biomarker for early sepsis diagnosis", "width": 1}, {"color": "#cccccc", "from": "Procalcitonin_is_a_biomarker_f", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}, {"color": "green", "from": "The_introduction_of_the_SIC_cr", "label": "supports", "to": "The_SIC_criteria_and_scoring_s", "width": 1}, {"color": "#cccccc", "from": "The_introduction_of_the_SIC_cr", "label": "hasText", "to": "The introduction of the SIC criteria and scoring system for sepsis-induced coagulopathy (SIC) in 2017 allowed for early detection of DIC, which is a major driver of sepsis-associated mortality.", "width": 1}, {"color": "#cccccc", "from": "The_introduction_of_the_SIC_cr", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "green", "from": "The_biomarker_procalcitonin_%28P", "label": "supports", "to": "Procalcitonin_is_a_biomarker_f", "width": 1}, {"color": "#cccccc", "from": "The_biomarker_procalcitonin_%28P", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "#cccccc", "from": "The_biomarker_procalcitonin_%28P", "label": "hasText", "to": "The biomarker procalcitonin (PCT) has demonstrated diagnostic value in the detection of bacterial sepsis, with higher levels typically observed in Gram-negative compared to Gram-positive infections", "width": 1}, {"color": "#cccccc", "from": "nan", "label": "22-rdf-syntax-ns#type", "to": "Topic", "width": 1}, {"color": "green", "from": "nan", "label": "supports", "to": "nan", "width": 1}, {"color": "#cccccc", "from": "nan", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}, {"color": "#cccccc", "from": "nan", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "#cccccc", "from": "26903336.pdf", "label": "providesEvidence", "to": "nan", "width": 1}, {"color": "#cccccc", "from": "26903336.pdf", "label": "title", "to": "26903336.pdf", "width": 1}, {"color": "#cccccc", "from": "26903336.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#cccccc", "from": "40384873.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#cccccc", "from": "40384873.pdf", "label": "title", "to": "40384873.pdf", "width": 1}, {"color": "#97c2fc", "from": "40384873.pdf", "label": "discusses", "to": "nan", "width": 1}, {"color": "#cccccc", "from": "40685448.pdf", "label": "providesEvidence", "to": "The_biomarker_procalcitonin_%28P", "width": 1}, {"color": "#cccccc", "from": "40685448.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#97c2fc", "from": "40685448.pdf", "label": "discusses", "to": "Early_Sepsis_Diagnosis", "width": 1}, {"color": "#cccccc", "from": "40685448.pdf", "label": "title", "to": "40685448.pdf", "width": 1}, {"color": "#cccccc", "from": "Viral_sepsis_is_often_underdia", "label": "hasText", "to": "Viral sepsis is often underdiagnosed because standard evaluations typically exclude viral panels.", "width": 1}, {"color": "#cccccc", "from": "Viral_sepsis_is_often_underdia", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}, {"color": "#cccccc", "from": "28963294.pdf", "label": "title", "to": "28963294.pdf", "width": 1}, {"color": "#97c2fc", "from": "28963294.pdf", "label": "discusses", "to": "Early_Sepsis_Diagnosis", "width": 1}, {"color": "#cccccc", "from": "28963294.pdf", "label": "providesEvidence", "to": "The_platelet_count%2C_PT_ratio_a", "width": 1}, {"color": "#cccccc", "from": "28963294.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#97c2fc", "from": "38084084.pdf", "label": "discusses", "to": "Early_Sepsis_Diagnosis", "width": 1}, {"color": "#cccccc", "from": "38084084.pdf", "label": "title", "to": "38084084.pdf", "width": 1}, {"color": "#cccccc", "from": "38084084.pdf", "label": "providesEvidence", "to": "The_prevailing_characterizatio", "width": 1}, {"color": "#cccccc", "from": "38084084.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#cccccc", "from": "The_raw_data%2C_observation%2C_or", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "green", "from": "The_raw_data%2C_observation%2C_or", "label": "supports", "to": "The_inference_or_proposal_deri", "width": 1}, {"color": "#cccccc", "from": "The_raw_data%2C_observation%2C_or", "label": "hasText", "to": "The raw data, observation, or statistical finding (The \u0027Because...\u0027)", "width": 1}, {"color": "#cccccc", "from": "39676169.pdf", "label": "providesEvidence", "to": "Recent_outbreaks_of_acute_vira", "width": 1}, {"color": "#cccccc", "from": "39676169.pdf", "label": "title", "to": "39676169.pdf", "width": 1}, {"color": "#cccccc", "from": "39676169.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#97c2fc", "from": "39676169.pdf", "label": "discusses", "to": "Viral_Sepsis", "width": 1}, {"color": "red", "from": "Recent_outbreaks_of_acute_vira", "label": "contradicts", "to": "Viral_sepsis_is_often_underdia", "width": 1}, {"color": "#cccccc", "from": "Recent_outbreaks_of_acute_vira", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "#cccccc", "from": "Recent_outbreaks_of_acute_vira", "label": "hasText", "to": "Recent outbreaks of acute viral infections, including Middle East respiratory syndrome coronavirus (MERS-CoV), influenza virus, and severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2), among other regional epidemics, have underscored the role of viral pathogenesis in sepsis, particu- larly when critically ill patients exhibit classic symptoms indicative of sepsis.", "width": 1}, {"color": "#cccccc", "from": "32699026.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#cccccc", "from": "32699026.pdf", "label": "title", "to": "32699026.pdf", "width": 1}, {"color": "#97c2fc", "from": "32699026.pdf", "label": "discusses", "to": "nan", "width": 1}, {"color": "#cccccc", "from": "X._Fan_et_al._discuss_the_effe", "label": "hasText", "to": "X. Fan et al. discuss the effects of sepsis on the amount, surface molecule expression, cytokine secretion, and T-cell activating function of dendritic cells and the underlying mechanisms in their review \u201cAlterations of Dendritic Cells in Sepsis: Featured Role in Immunoparalysis.\u201d", "width": 1}, {"color": "green", "from": "X._Fan_et_al._discuss_the_effe", "label": "supports", "to": "Dendritic_cells_play_a_crucial", "width": 1}, {"color": "#cccccc", "from": "X._Fan_et_al._discuss_the_effe", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "#cccccc", "from": "The_inference_or_proposal_deri", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}, {"color": "#cccccc", "from": "The_inference_or_proposal_deri", "label": "hasText", "to": "The inference or proposal derived from the evidence (The \u0027Therefore...\u0027)", "width": 1}, {"color": "#cccccc", "from": "Lactate_can_directly_promote_h", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}, {"color": "#cccccc", "from": "Lactate_can_directly_promote_h", "label": "hasText", "to": "Lactate can directly promote histone lactylation and regulate protein gene expression.", "width": 1}, {"color": "#97c2fc", "from": "29022217.pdf", "label": "discusses", "to": "Early_Sepsis_Diagnosis", "width": 1}, {"color": "#cccccc", "from": "29022217.pdf", "label": "providesEvidence", "to": "The_current_recommendation_for", "width": 1}, {"color": "#cccccc", "from": "29022217.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#cccccc", "from": "29022217.pdf", "label": "title", "to": "29022217.pdf", "width": 1}, {"color": "#cccccc", "from": "33236524.pdf", "label": "providesEvidence", "to": "The_high_mortality_rate_associ", "width": 1}, {"color": "#cccccc", "from": "33236524.pdf", "label": "title", "to": "33236524.pdf", "width": 1}, {"color": "#cccccc", "from": "33236524.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#97c2fc", "from": "33236524.pdf", "label": "discusses", "to": "Early_Sepsis_Diagnosis", "width": 1}, {"color": "#cccccc", "from": "29626019.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#97c2fc", "from": "29626019.pdf", "label": "discusses", "to": "nan", "width": 1}, {"color": "#cccccc", "from": "29626019.pdf", "label": "title", "to": "29626019.pdf", "width": 1}, {"color": "#97c2fc", "from": "39256242.pdf", "label": "discusses", "to": "nan", "width": 1}, {"color": "#cccccc", "from": "39256242.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#cccccc", "from": "39256242.pdf", "label": "title", "to": "39256242.pdf", "width": 1}, {"color": "#cccccc", "from": "39302568.pdf", "label": "providesEvidence", "to": "The_introduction_of_the_SIC_cr", "width": 1}, {"color": "#cccccc", "from": "39302568.pdf", "label": "title", "to": "39302568.pdf", "width": 1}, {"color": "#97c2fc", "from": "39302568.pdf", "label": "discusses", "to": "Early_Sepsis_Diagnosis", "width": 1}, {"color": "#cccccc", "from": "39302568.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "green", "from": "The_prevailing_characterizatio", "label": "supports", "to": "The_objective_of_this_report_i", "width": 1}, {"color": "#cccccc", "from": "The_prevailing_characterizatio", "label": "hasText", "to": "The prevailing characterization of sepsis was that of an infection-induced systemic inflammatory response syndrome (SIRS) that led to shock and organ dysfunction often remote from the source of infection.", "width": 1}, {"color": "#cccccc", "from": "The_prevailing_characterizatio", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "#cccccc", "from": "The_platelet_count%2C_PT_ratio_a", "label": "hasText", "to": "The platelet count, PT ratio and total SOFA score were independent predictors of a fatal outcome in a logistic regression model.", "width": 1}, {"color": "green", "from": "The_platelet_count%2C_PT_ratio_a", "label": "supports", "to": "The_platelet_count%2C_PT_ratio_a", "width": 1}, {"color": "#cccccc", "from": "The_platelet_count%2C_PT_ratio_a", "label": "hasText", "to": "The platelet count, PT ratio and total SOFA score obtained just before the start of treatment were examined in relation to the 28-day mortality rate.", "width": 1}, {"color": "#cccccc", "from": "The_platelet_count%2C_PT_ratio_a", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}, {"color": "#cccccc", "from": "The_platelet_count%2C_PT_ratio_a", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "#cccccc", "from": "The_objective_of_this_report_i", "label": "hasText", "to": "The objective of this report is to summarize recent evidence-based practices for the diagnosis and initial management of children with sepsis, including the increasing emphasis on sepsis sub-phenotypes linked to precision therapeutics.", "width": 1}, {"color": "#cccccc", "from": "The_objective_of_this_report_i", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}, {"color": "#cccccc", "from": "Clinical_Presentation_and_Diagnosis", "label": "rdf-schema#label", "to": "Clinical Presentation and Diagnosis", "width": 1}, {"color": "#cccccc", "from": "Clinical_Presentation_and_Diagnosis", "label": "22-rdf-syntax-ns#type", "to": "Topic", "width": 1}, {"color": "#cccccc", "from": "The_current_recommendation_for", "label": "hasText", "to": "The current recommendation for identifying both sepsis and septic shock is the use of the SOFA score. Despite this initial subjectivity, the SOFA calibration is correct and properly adjusted to the subsequent evolution of the patient.", "width": 1}, {"color": "green", "from": "The_current_recommendation_for", "label": "supports", "to": "The_SOFA_score_is_a_simple_sys", "width": 1}, {"color": "#cccccc", "from": "The_current_recommendation_for", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "#cccccc", "from": "The_new_definition_of_sepsis_%28", "label": "hasText", "to": "The new definition of sepsis (2016) is more specific than the previous one and allows easier recognition of sepsis in everyday clinical practice.", "width": 1}, {"color": "#cccccc", "from": "The_new_definition_of_sepsis_%28", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}, {"color": "#cccccc", "from": "The_incidence_of_sepsis_or_sep", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "green", "from": "The_incidence_of_sepsis_or_sep", "label": "supports", "to": "The_incidence_of_parapneumonic", "width": 1}, {"color": "#cccccc", "from": "The_incidence_of_sepsis_or_sep", "label": "hasText", "to": "The incidence of sepsis or septic shock in patients with an infected pleural space is not well reported in the literature.", "width": 1}, {"color": "#cccccc", "from": "Dendritic_cells_play_a_crucial", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}, {"color": "#cccccc", "from": "Dendritic_cells_play_a_crucial", "label": "hasText", "to": "Dendritic cells play a crucial role in sepsis by serving as professional antigen presenting cells and being involved in the aberrant immune response to sepsis.", "width": 1}, {"color": "#cccccc", "from": "The_2016_sepsis_definition_upd", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}, {"color": "#cccccc", "from": "The_2016_sepsis_definition_upd", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "#cccccc", "from": "The_2016_sepsis_definition_upd", "label": "hasText", "to": "The 2016 sepsis definition update in adult patients (Sepsis-3) did not consider pediatric patients.", "width": 1}, {"color": "red", "from": "The_2016_sepsis_definition_upd", "label": "contradicts", "to": "The_2016_sepsis_definition_upd", "width": 1}, {"color": "#cccccc", "from": "The_2016_sepsis_definition_upd", "label": "hasText", "to": "The 2016 sepsis definition update in adult patients (Sepsis-3) included a systematic review of reported criteria used to identify adults with septic shock (5). This review focused on hemodynamic criteria, was pri- marily limited to studies from upper middle-income countries (UMICs) and high-income countries (HICs), and specifically excluded pediatric studies.", "width": 1}, {"color": "#cccccc", "from": "37904710.pdf", "label": "providesEvidence", "to": "The_discovery_of_lactylation_m", "width": 1}, {"color": "#97c2fc", "from": "37904710.pdf", "label": "discusses", "to": "Early_Sepsis_Diagnosis", "width": 1}, {"color": "#cccccc", "from": "37904710.pdf", "label": "title", "to": "37904710.pdf", "width": 1}, {"color": "#cccccc", "from": "37904710.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#cccccc", "from": "The_discovery_of_lactylation_m", "label": "hasText", "to": "The discovery of lactylation modifications in sepsis patients and the study of lactylation modifications in sepsis led to the conclusion that lactate is a fundamental member of energy conversion through blood circulation.", "width": 1}, {"color": "#cccccc", "from": "The_discovery_of_lactylation_m", "label": "22-rdf-syntax-ns#type", "to": "Evidence", "width": 1}, {"color": "green", "from": "The_discovery_of_lactylation_m", "label": "supports", "to": "Lactate_can_directly_promote_h", "width": 1}, {"color": "#cccccc", "from": "34612847.pdf", "label": "22-rdf-syntax-ns#type", "to": "Paper", "width": 1}, {"color": "#97c2fc", "from": "34612847.pdf", "label": "discusses", "to": "Early_Sepsis_Diagnosis", "width": 1}, {"color": "#cccccc", "from": "34612847.pdf", "label": "title", "to": "34612847.pdf", "width": 1}, {"color": "#cccccc", "from": "34612847.pdf", "label": "providesEvidence", "to": "The_2016_sepsis_definition_upd", "width": 1}, {"color": "#cccccc", "from": "The_incidence_of_parapneumonic", "label": "hasText", "to": "The incidence of parapneumonic effusion is a significant component of prognostic models to predict mortality from pneumonia.", "width": 1}, {"color": "#cccccc", "from": "The_incidence_of_parapneumonic", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}, {"color": "#cccccc", "from": "Therefore%2C_early_diagnosis_of", "label": "hasText", "to": "Therefore, early diagnosis of sepsis is crucial for improving patient outcomes.", "width": 1}, {"color": "#cccccc", "from": "Therefore%2C_early_diagnosis_of", "label": "22-rdf-syntax-ns#type", "to": "Claim", "width": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": true,
+        "filter": [
+            "physics"
+        ]
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+                  // if this network requires displaying the configure window,
+                  // put it in its div
+                  options.configure["container"] = document.getElementById("config");
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+                      network.on("stabilizationProgress", function(params) {
+                          document.getElementById('loadingBar').removeAttribute("style");
+                          var maxWidth = 496;
+                          var minWidth = 20;
+                          var widthFactor = params.iterations/params.total;
+                          var width = Math.max(minWidth,maxWidth * widthFactor);
+                          document.getElementById('bar').style.width = width + 'px';
+                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
+                      });
+                      network.once("stabilizationIterationsDone", function() {
+                          document.getElementById('text').innerHTML = '100%';
+                          document.getElementById('bar').style.width = '496px';
+                          document.getElementById('loadingBar').style.opacity = 0;
+                          // really clean the dom element
+                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
+                      });
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

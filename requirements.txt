@@ -1,0 +1,9 @@
+# Dependencies for Sepsis Knowledge Graph & Evidence Chain Analysis
+# Python 3.10+
+
+google-genai>=1.0.0
+openai>=1.0.0        # OpenRouter API
+pydantic>=2.0.0
+requests>=2.31.0
+PyMuPDF>=1.23.0      # PDF text extraction
+jupyter>=1.0.0

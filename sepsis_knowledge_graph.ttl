@@ -1,0 +1,255 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix ex: <http://example.org/sepsis/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://example.org/sepsis/Paper/25834828.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/Role_of_Dendritic_Cells_in_Sepsis> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/X._Fan_et_al._discuss_the_effe> ;
+    dc:title "25834828.pdf" .
+
+<http://example.org/sepsis/Paper/26903336.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/nan> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/nan> ;
+    dc:title "26903336.pdf" .
+
+<http://example.org/sepsis/Paper/28963294.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/Early_Sepsis_Diagnosis> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/The_platelet_count%2C_PT_ratio_a> ;
+    dc:title "28963294.pdf" .
+
+<http://example.org/sepsis/Paper/29022217.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/Early_Sepsis_Diagnosis> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/The_current_recommendation_for> ;
+    dc:title "29022217.pdf" .
+
+<http://example.org/sepsis/Paper/29626019.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/nan> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/nan> ;
+    dc:title "29626019.pdf" .
+
+<http://example.org/sepsis/Paper/30915218.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/Early_Sepsis_Diagnosis> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/The_raw_data%2C_observation%2C_or> ;
+    dc:title "30915218.pdf" .
+
+<http://example.org/sepsis/Paper/31747556.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/Early_Sepsis_Diagnosis> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/Neonatal_sepsis_is_a_frequent> ;
+    dc:title "31747556.pdf" .
+
+<http://example.org/sepsis/Paper/32699026.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/nan> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/nan> ;
+    dc:title "32699026.pdf" .
+
+<http://example.org/sepsis/Paper/32978579.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/Early_Sepsis_Diagnosis> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/History-taking_will_highlight> ;
+    dc:title "32978579.pdf" .
+
+<http://example.org/sepsis/Paper/33236524.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/Early_Sepsis_Diagnosis> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/The_high_mortality_rate_associ> ;
+    dc:title "33236524.pdf" .
+
+<http://example.org/sepsis/Paper/34340174.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/Clinical_Presentation_and_Diagnosis> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/The_incidence_of_sepsis_or_sep> ;
+    dc:title "34340174.pdf" .
+
+<http://example.org/sepsis/Paper/34446092.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/Early_Sepsis_Diagnosis> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/The_majority_of_sepsis_is_comm> ;
+    dc:title "34446092.pdf" .
+
+<http://example.org/sepsis/Paper/34612847.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/Early_Sepsis_Diagnosis> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/The_2016_sepsis_definition_upd> ;
+    dc:title "34612847.pdf" .
+
+<http://example.org/sepsis/Paper/36304809.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/Early_Sepsis_Diagnosis> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/The_incidence_of_sepsis_and_se> ;
+    dc:title "36304809.pdf" .
+
+<http://example.org/sepsis/Paper/37904710.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/Early_Sepsis_Diagnosis> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/The_discovery_of_lactylation_m> ;
+    dc:title "37904710.pdf" .
+
+<http://example.org/sepsis/Paper/38084084.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/Early_Sepsis_Diagnosis> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/The_prevailing_characterizatio> ;
+    dc:title "38084084.pdf" .
+
+<http://example.org/sepsis/Paper/38577320.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/Early_Sepsis_Diagnosis> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/The_pathophysiology_of_sepsis> ;
+    dc:title "38577320.pdf" .
+
+<http://example.org/sepsis/Paper/39256242.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/nan> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/nan> ;
+    dc:title "39256242.pdf" .
+
+<http://example.org/sepsis/Paper/39302568.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/Early_Sepsis_Diagnosis> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/The_introduction_of_the_SIC_cr> ;
+    dc:title "39302568.pdf" .
+
+<http://example.org/sepsis/Paper/39676169.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/Viral_Sepsis> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/Recent_outbreaks_of_acute_vira> ;
+    dc:title "39676169.pdf" .
+
+<http://example.org/sepsis/Paper/40384873.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/nan> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/nan> ;
+    dc:title "40384873.pdf" .
+
+<http://example.org/sepsis/Paper/40685448.pdf> a ex:Paper ;
+    ex:discusses <http://example.org/sepsis/Topic/Early_Sepsis_Diagnosis> ;
+    ex:providesEvidence <http://example.org/sepsis/Evidence/The_biomarker_procalcitonin_%28P> ;
+    dc:title "40685448.pdf" .
+
+<http://example.org/sepsis/Claim/A_physical_examination_can_ide> a ex:Claim ;
+    ex:hasText "A physical examination can identify clinical observations outside normal limits." .
+
+<http://example.org/sepsis/Claim/Dendritic_cells_play_a_crucial> a ex:Claim ;
+    ex:hasText "Dendritic cells play a crucial role in sepsis by serving as professional antigen presenting cells and being involved in the aberrant immune response to sepsis." .
+
+<http://example.org/sepsis/Claim/Early_neonatal_sepsis_is_class> a ex:Claim ;
+    ex:hasText "Early neonatal sepsis is classiﬁed according to the time of onset as early or late." .
+
+<http://example.org/sepsis/Claim/Empirical_antibiotic_administr> a ex:Claim ;
+    ex:hasText "Empirical antibiotic administration in sepsis is not as eﬃcacious as therapeutics targeted A. Claxton" .
+
+<http://example.org/sepsis/Claim/Lactate_can_directly_promote_h> a ex:Claim ;
+    ex:hasText "Lactate can directly promote histone lactylation and regulate protein gene expression." .
+
+<http://example.org/sepsis/Claim/Procalcitonin_is_a_biomarker_f> a ex:Claim ;
+    ex:hasText "Procalcitonin is a biomarker for early sepsis diagnosis" .
+
+<http://example.org/sepsis/Claim/The_2016_sepsis_definition_upd> a ex:Claim ;
+    ex:hasText "The 2016 sepsis definition update in adult patients (Sepsis-3) did not consider pediatric patients." .
+
+<http://example.org/sepsis/Claim/The_SIC_criteria_and_scoring_s> a ex:Claim ;
+    ex:hasText "The SIC criteria and scoring system are a valuable tool for early detection of sepsis-associated DIC." .
+
+<http://example.org/sepsis/Claim/The_SOFA_score_is_a_simple_sys> a ex:Claim ;
+    ex:hasText "The SOFA score is a simple system, which uses accessible parameters in daily clinical practice to identify dysfunction or failure of the key organs as a result of sepsis." .
+
+<http://example.org/sepsis/Claim/The_complex_pathophysiology_of> a ex:Claim ;
+    ex:hasText "The complex pathophysiology of sepsis suggests that a single biomarker cannot identify, stratify, and describe patients affected by septic shock." .
+
+<http://example.org/sepsis/Claim/The_incidence_of_parapneumonic> a ex:Claim ;
+    ex:hasText "The incidence of parapneumonic effusion is a significant component of prognostic models to predict mortality from pneumonia." .
+
+<http://example.org/sepsis/Claim/The_inference_or_proposal_deri> a ex:Claim ;
+    ex:hasText "The inference or proposal derived from the evidence (The 'Therefore...')" .
+
+<http://example.org/sepsis/Claim/The_new_definition_of_sepsis_%28> a ex:Claim ;
+    ex:hasText "The new definition of sepsis (2016) is more specific than the previous one and allows easier recognition of sepsis in everyday clinical practice." .
+
+<http://example.org/sepsis/Claim/The_objective_of_this_report_i> a ex:Claim ;
+    ex:hasText "The objective of this report is to summarize recent evidence-based practices for the diagnosis and initial management of children with sepsis, including the increasing emphasis on sepsis sub-phenotypes linked to precision therapeutics." .
+
+<http://example.org/sepsis/Claim/The_platelet_count%2C_PT_ratio_a> a ex:Claim ;
+    ex:hasText "The platelet count, PT ratio and total SOFA score were independent predictors of a fatal outcome in a logistic regression model." .
+
+<http://example.org/sepsis/Claim/Therefore%2C_early_diagnosis_of> a ex:Claim ;
+    ex:hasText "Therefore, early diagnosis of sepsis is crucial for improving patient outcomes." .
+
+<http://example.org/sepsis/Claim/Viral_sepsis_is_often_underdia> a ex:Claim ;
+    ex:hasText "Viral sepsis is often underdiagnosed because standard evaluations typically exclude viral panels." .
+
+<http://example.org/sepsis/Claim/nan> a ex:Claim ;
+    ex:hasText "nan" .
+
+<http://example.org/sepsis/Evidence/History-taking_will_highlight> a ex:Evidence ;
+    ex:hasText "History-taking will highlight factors like immune system competence and the level of systemic reserves to fight infections." ;
+    ex:supports <http://example.org/sepsis/Claim/A_physical_examination_can_ide> .
+
+<http://example.org/sepsis/Evidence/Neonatal_sepsis_is_a_frequent> a ex:Evidence ;
+    ex:contradicts <http://example.org/sepsis/Claim/Early_neonatal_sepsis_is_class> ;
+    ex:hasText "Neonatal sepsis is a frequent cause of neonatal morbidity and mortality." .
+
+<http://example.org/sepsis/Evidence/Recent_outbreaks_of_acute_vira> a ex:Evidence ;
+    ex:contradicts <http://example.org/sepsis/Claim/Viral_sepsis_is_often_underdia> ;
+    ex:hasText "Recent outbreaks of acute viral infections, including Middle East respiratory syndrome coronavirus (MERS-CoV), influenza virus, and severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2), among other regional epidemics, have underscored the role of viral pathogenesis in sepsis, particu- larly when critically ill patients exhibit classic symptoms indicative of sepsis." .
+
+<http://example.org/sepsis/Evidence/The_2016_sepsis_definition_upd> a ex:Evidence ;
+    ex:contradicts <http://example.org/sepsis/Claim/The_2016_sepsis_definition_upd> ;
+    ex:hasText "The 2016 sepsis definition update in adult patients (Sepsis-3) included a systematic review of reported criteria used to identify adults with septic shock (5). This review focused on hemodynamic criteria, was pri- marily limited to studies from upper middle-income countries (UMICs) and high-income countries (HICs), and specifically excluded pediatric studies." .
+
+<http://example.org/sepsis/Evidence/The_biomarker_procalcitonin_%28P> a ex:Evidence ;
+    ex:hasText "The biomarker procalcitonin (PCT) has demonstrated diagnostic value in the detection of bacterial sepsis, with higher levels typically observed in Gram-negative compared to Gram-positive infections" ;
+    ex:supports <http://example.org/sepsis/Claim/Procalcitonin_is_a_biomarker_f> .
+
+<http://example.org/sepsis/Evidence/The_current_recommendation_for> a ex:Evidence ;
+    ex:hasText "The current recommendation for identifying both sepsis and septic shock is the use of the SOFA score. Despite this initial subjectivity, the SOFA calibration is correct and properly adjusted to the subsequent evolution of the patient." ;
+    ex:supports <http://example.org/sepsis/Claim/The_SOFA_score_is_a_simple_sys> .
+
+<http://example.org/sepsis/Evidence/The_discovery_of_lactylation_m> a ex:Evidence ;
+    ex:hasText "The discovery of lactylation modifications in sepsis patients and the study of lactylation modifications in sepsis led to the conclusion that lactate is a fundamental member of energy conversion through blood circulation." ;
+    ex:supports <http://example.org/sepsis/Claim/Lactate_can_directly_promote_h> .
+
+<http://example.org/sepsis/Evidence/The_high_mortality_rate_associ> a ex:Evidence ;
+    ex:contradicts <http://example.org/sepsis/Claim/Empirical_antibiotic_administr> ;
+    ex:hasText "The high mortality rate associated with delayed treatment and the lack of speciﬁc diagnostic and therapeutic guidance, clinicians empirically administer broad-spectrum an- tibiotics as early as possible." .
+
+<http://example.org/sepsis/Evidence/The_incidence_of_sepsis_and_se> a ex:Evidence ;
+    ex:hasText "The incidence of sepsis and septic shock has been steadily increasing since the first concept definition in 1991." ;
+    ex:supports <http://example.org/sepsis/Claim/The_new_definition_of_sepsis_%28> .
+
+<http://example.org/sepsis/Evidence/The_incidence_of_sepsis_or_sep> a ex:Evidence ;
+    ex:hasText "The incidence of sepsis or septic shock in patients with an infected pleural space is not well reported in the literature." ;
+    ex:supports <http://example.org/sepsis/Claim/The_incidence_of_parapneumonic> .
+
+<http://example.org/sepsis/Evidence/The_introduction_of_the_SIC_cr> a ex:Evidence ;
+    ex:hasText "The introduction of the SIC criteria and scoring system for sepsis-induced coagulopathy (SIC) in 2017 allowed for early detection of DIC, which is a major driver of sepsis-associated mortality." ;
+    ex:supports <http://example.org/sepsis/Claim/The_SIC_criteria_and_scoring_s> .
+
+<http://example.org/sepsis/Evidence/The_majority_of_sepsis_is_comm> a ex:Evidence ;
+    ex:hasText "The majority of sepsis is community-acquired, and progression can be insidious, making diagnosis difficult [3, 4]" ;
+    ex:supports <http://example.org/sepsis/Claim/Therefore%2C_early_diagnosis_of> .
+
+<http://example.org/sepsis/Evidence/The_pathophysiology_of_sepsis> a ex:Evidence ;
+    ex:contradicts <http://example.org/sepsis/Claim/The_complex_pathophysiology_of> ;
+    ex:hasText "The pathophysiology of sepsis has yet to be comprehensively understood, but it is evident that this syndrome involves a complex interplay between the pathogen and host immune system." .
+
+<http://example.org/sepsis/Evidence/The_platelet_count%2C_PT_ratio_a> a ex:Evidence ;
+    ex:hasText "The platelet count, PT ratio and total SOFA score obtained just before the start of treatment were examined in relation to the 28-day mortality rate." ;
+    ex:supports <http://example.org/sepsis/Claim/The_platelet_count%2C_PT_ratio_a> .
+
+<http://example.org/sepsis/Evidence/The_prevailing_characterizatio> a ex:Evidence ;
+    ex:hasText "The prevailing characterization of sepsis was that of an infection-induced systemic inflammatory response syndrome (SIRS) that led to shock and organ dysfunction often remote from the source of infection." ;
+    ex:supports <http://example.org/sepsis/Claim/The_objective_of_this_report_i> .
+
+<http://example.org/sepsis/Evidence/The_raw_data%2C_observation%2C_or> a ex:Evidence ;
+    ex:hasText "The raw data, observation, or statistical finding (The 'Because...')" ;
+    ex:supports <http://example.org/sepsis/Claim/The_inference_or_proposal_deri> .
+
+<http://example.org/sepsis/Evidence/X._Fan_et_al._discuss_the_effe> a ex:Evidence ;
+    ex:hasText "X. Fan et al. discuss the effects of sepsis on the amount, surface molecule expression, cytokine secretion, and T-cell activating function of dendritic cells and the underlying mechanisms in their review “Alterations of Dendritic Cells in Sepsis: Featured Role in Immunoparalysis.”" ;
+    ex:supports <http://example.org/sepsis/Claim/Dendritic_cells_play_a_crucial> .
+
+<http://example.org/sepsis/Topic/Clinical_Presentation_and_Diagnosis> a ex:Topic ;
+    rdfs:label "Clinical Presentation and Diagnosis" .
+
+<http://example.org/sepsis/Topic/Role_of_Dendritic_Cells_in_Sepsis> a ex:Topic ;
+    rdfs:label "Role of Dendritic Cells in Sepsis" .
+
+<http://example.org/sepsis/Topic/Viral_Sepsis> a ex:Topic ;
+    rdfs:label "Viral Sepsis" .
+
+<http://example.org/sepsis/Evidence/nan> a ex:Evidence ;
+    ex:hasText "nan" ;
+    ex:supports <http://example.org/sepsis/Claim/nan> .
+
+<http://example.org/sepsis/Topic/nan> a ex:Topic ;
+    rdfs:label "nan" .
+
+<http://example.org/sepsis/Topic/Early_Sepsis_Diagnosis> a ex:Topic ;
+    rdfs:label "Early Sepsis Diagnosis" .
+
