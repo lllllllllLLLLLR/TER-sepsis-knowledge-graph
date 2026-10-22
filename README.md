@@ -1,6 +1,6 @@
 # Sepsis Knowledge Graph & Evidence Chain Analysis
 
-M1 research project (TER) at Université Paris-Saclay: build a **knowledge graph of sepsis literature** by extracting logic/evidence chains from research papers using LLMs, then exploring them as an interactive evidence network.
+Research project at Université Paris-Saclay: build a **knowledge graph of sepsis literature** by extracting logic/evidence chains from research papers using LLMs, then exploring them as an interactive evidence network.
 
 ## Highlights
 
