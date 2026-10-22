@@ -51,5 +51,4 @@ See `requirements.txt`. Key libraries: `google-genai`, `openai` (OpenRouter), `p
 
 ## Notes
 
-- Raw PDF collections, datasets and API secrets are **not** included in this repo (see `.gitignore`).
-- Research output of the M1 TER (Travail d'Étude et de Recherche), 2025–2026.
+- Raw PDF collections, datasets and API secrets are **not** included in this repo (see `.gitignore`) 
